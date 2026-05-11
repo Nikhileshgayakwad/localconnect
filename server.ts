@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 import connectDB from './server/config/db.js';
 import authRoutes from './server/routes/authRoutes.js';
 import productRoutes from './server/routes/productRoutes.js';
@@ -19,9 +18,18 @@ dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+function resolveClientStaticRoot(): string {
+  // Bundled production: server.cjs lives next to Vite output (index.html) in dist/
+  if (fs.existsSync(path.join(__dirname, 'index.html'))) {
+    return __dirname;
+  }
+  // Dev / unbundled: repo root; Vite build output is in dist/
+  return path.join(__dirname, 'dist');
+}
+
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
   const uploadsPath = path.join(__dirname, 'uploads');
 
   if (!fs.existsSync(uploadsPath)) {
@@ -56,19 +64,24 @@ async function startServer() {
     res.json({ status: 'ok', message: 'LocalConnect API is running' });
   });
 
-  // Vite Integration for Full-Stack Applet
-  if (process.env.NODE_ENV !== 'production') {
+  // Vite: only load in development — never statically import vite (breaks bundled production / Render).
+  if (process.env.NODE_ENV === 'production') {
+    const clientRoot = resolveClientStaticRoot();
+    app.use(express.static(clientRoot));
+    app.get('*', (req, res) => {
+      if (req.path.startsWith('/api')) {
+        res.status(404).json({ success: false, error: 'Not found' });
+        return;
+      }
+      res.sendFile(path.join(clientRoot, 'index.html'));
+    });
+  } else {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(__dirname, 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
