@@ -19,7 +19,7 @@ dotenv.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function resolveClientStaticRoot(): string {
-  // Bundled production: server.cjs lives next to Vite output (index.html) in dist/
+  // Bundled production: server.mjs lives next to Vite output (index.html) in dist/
   if (fs.existsSync(path.join(__dirname, 'index.html'))) {
     return __dirname;
   }
