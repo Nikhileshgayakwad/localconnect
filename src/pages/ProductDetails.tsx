@@ -66,8 +66,23 @@ const ProductDetails: React.FC = () => {
     loadProduct();
   }, [id]);
 
-  const whatsappNumber = (seller?.whatsappNumber || '').replace(/[^\d]/g, '');
-  const whatsappUrl = whatsappNumber ? `https://wa.me/${whatsappNumber}` : '';
+  const whatsappNumber = (seller?.whatsappNumber || '').replace(/[+\s-]/g, '').replace(/[^\d]/g, '');
+  const whatsappMessage = product
+    ? [
+        'Hello!',
+        `I am interested in your product: ${product.title}`,
+        `Price: Rs ${product.price.toLocaleString()}`,
+        `Category: ${product.category}`,
+        `Location: ${product.location}`,
+        `Seller/Shop: ${seller?.shopName || seller?.name || product.sellerName}`,
+        `Product Link: ${window.location.href}`,
+        'Is this product available?',
+      ].join('\n')
+    : '';
+  const whatsappUrl =
+    whatsappNumber && whatsappMessage
+      ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
+      : '';
   const isOwner = Boolean(user && product?.owner?._id && user._id === product.owner._id);
 
   const handleAddToCart = async () => {
