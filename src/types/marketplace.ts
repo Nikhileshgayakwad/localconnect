@@ -22,6 +22,20 @@ export interface Product {
   createdAt: string;
 }
 
+export interface NearbySeller {
+  _id: string;
+  name: string;
+  shopName: string;
+  profileImage: string;
+  location: string;
+  city: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  whatsappNumber: string;
+  distanceKm: number | null;
+}
+
 export interface Seller {
   _id: string;
   name: string;

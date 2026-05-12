@@ -9,7 +9,7 @@ import { feedPosts, products, sellers } from './data.js';
 
 dotenv.config();
 
-async function upsertCollection<T extends Record<string, unknown>>(
+async function upsertCollection<T extends object>(
   items: T[],
   getFilter: (item: T) => Record<string, unknown>,
   model: mongoose.Model<any>,
@@ -58,6 +58,21 @@ async function runSeed() {
       await seedUser.save();
       console.log(`Updated seed owner role to seller: ${seedUser.email}`);
     }
+
+    await User.findByIdAndUpdate(seedUser._id, {
+      $set: {
+        shopName: 'LocalConnect Demo Shop',
+        whatsappNumber: '919876543210',
+        location: 'Jaipur, Rajasthan',
+        city: 'Jaipur',
+        address: 'Johri Bazaar, Shop 12 (demo)',
+        latitude: 26.9124,
+        longitude: 75.7873,
+        profileImage:
+          seedUser.profileImage ||
+          'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=600&q=80',
+      },
+    });
 
     const buyerSeedEmail = 'buyer.demo@localconnect.in';
     const buyerSeedUser = await User.findOne({ email: buyerSeedEmail });

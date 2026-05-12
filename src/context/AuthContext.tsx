@@ -11,6 +11,10 @@ interface User {
   shopName?: string;
   whatsappNumber?: string;
   location?: string;
+  address?: string;
+  city?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   profileImage?: string;
 }
 

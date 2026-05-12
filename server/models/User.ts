@@ -44,6 +44,26 @@ const userSchema = new mongoose.Schema({
     maxlength: 100,
     default: ''
   },
+  address: {
+    type: String,
+    trim: true,
+    maxlength: 300,
+    default: ''
+  },
+  city: {
+    type: String,
+    trim: true,
+    maxlength: 100,
+    default: ''
+  },
+  latitude: {
+    type: Number,
+    default: undefined,
+  },
+  longitude: {
+    type: Number,
+    default: undefined,
+  },
   profileImage: {
     type: String,
     default: ''

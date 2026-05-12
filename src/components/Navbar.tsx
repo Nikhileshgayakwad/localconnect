@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Menu, X, Moon, Sun, Store } from 'lucide-react';
+import { LogOut, User, Menu, X, Moon, Sun, Store, MapPin } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const Navbar: React.FC = () => {
@@ -40,6 +40,10 @@ const Navbar: React.FC = () => {
               <>
                 <Link to="/" className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
                   Home
+                </Link>
+                <Link to="/nearby-sellers" className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+                  <MapPin size={15} aria-hidden />
+                  Nearby Sellers
                 </Link>
                 {user.role === 'seller' ? (
                   <>
@@ -101,6 +105,10 @@ const Navbar: React.FC = () => {
                 <Link to="/community" className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
                   Community
                 </Link>
+                <Link to="/nearby-sellers" className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
+                  <MapPin size={15} aria-hidden />
+                  Nearby Sellers
+                </Link>
                 <Link to="/login" className="rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100">
                   Login
                 </Link>
@@ -159,6 +167,13 @@ const Navbar: React.FC = () => {
                   className="block rounded-lg px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                 >
                   Home
+                </Link>
+                <Link
+                  to="/nearby-sellers"
+                  onClick={() => setIsOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                >
+                  Nearby Sellers
                 </Link>
                 <Link
                   to="/community"
@@ -234,6 +249,13 @@ const Navbar: React.FC = () => {
                   className="block rounded-lg px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                 >
                   Community
+                </Link>
+                <Link
+                  to="/nearby-sellers"
+                  onClick={() => setIsOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-base font-medium text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                >
+                  Nearby Sellers
                 </Link>
                 <Link
                   to="/login"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { PackageSearch, Search, Store, Users } from 'lucide-react';
 import HeroSection from '../components/home/HeroSection';
@@ -190,7 +190,9 @@ const Home: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {products.map((product) => (
-                  <ProductCard key={product._id} product={product} />
+                  <Fragment key={product._id}>
+                    <ProductCard product={product} />
+                  </Fragment>
                 ))}
               </div>
             </div>
@@ -206,7 +208,9 @@ const Home: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sellers.map((seller) => (
-                  <SellerCard key={seller._id} seller={seller} />
+                  <Fragment key={seller._id}>
+                    <SellerCard seller={seller} />
+                  </Fragment>
                 ))}
               </div>
             </div>
@@ -222,7 +226,9 @@ const Home: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {feedPosts.map((post) => (
-                  <FeedPreviewCard key={post._id} post={post} />
+                  <Fragment key={post._id}>
+                    <FeedPreviewCard post={post} />
+                  </Fragment>
                 ))}
               </div>
             </div>

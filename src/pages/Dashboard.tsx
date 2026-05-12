@@ -1,11 +1,31 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ShoppingBag, Users, Calendar, Activity, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, Users, Calendar, Activity, CheckCircle2, Navigation, Loader2 } from 'lucide-react';
 import { apiClient, getApiErrorMessage } from '../lib/api';
+import { reverseGeocodeSellerLocation } from '../lib/osmReverseGeocode';
 import { uploadImageFile } from '../services/uploadService';
 
 const Dashboard: React.FC = () => {
   const { user, setUser } = useAuth();
+  const mapUpdatedUser = (updatedUser: any) =>
+    updatedUser
+      ? {
+          _id: updatedUser._id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role === 'seller' ? 'seller' : 'buyer',
+          avatar: updatedUser.avatar,
+          shopName: updatedUser.shopName || '',
+          whatsappNumber: updatedUser.whatsappNumber || '',
+          location: updatedUser.location || '',
+          address: updatedUser.address || '',
+          city: updatedUser.city || '',
+          latitude: updatedUser.latitude ?? null,
+          longitude: updatedUser.longitude ?? null,
+          profileImage: updatedUser.profileImage || '',
+        }
+      : user;
+
   const [profileImageDraft, setProfileImageDraft] = React.useState(user?.profileImage || user?.avatar || '');
   const [profileUploading, setProfileUploading] = React.useState(false);
   const [profileSaving, setProfileSaving] = React.useState(false);
@@ -14,11 +34,20 @@ const Dashboard: React.FC = () => {
     shopName: user?.shopName || '',
     whatsappNumber: user?.whatsappNumber || '',
     location: user?.location || '',
+    address: user?.address || '',
+    city: user?.city || '',
+    latitude:
+      user?.latitude != null && Number.isFinite(Number(user.latitude)) ? String(user.latitude) : '',
+    longitude:
+      user?.longitude != null && Number.isFinite(Number(user.longitude)) ? String(user.longitude) : '',
     profileImage: user?.profileImage || '',
   });
   const [saving, setSaving] = React.useState(false);
   const [uploadingProfileImage, setUploadingProfileImage] = React.useState(false);
   const [saveMessage, setSaveMessage] = React.useState('');
+  const [sellerGeoLoading, setSellerGeoLoading] = React.useState(false);
+  const [sellerGeoError, setSellerGeoError] = React.useState('');
+  const [sellerGeoInfo, setSellerGeoInfo] = React.useState('');
 
   React.useEffect(() => {
     setProfileImageDraft(user?.profileImage || user?.avatar || '');
@@ -26,6 +55,12 @@ const Dashboard: React.FC = () => {
       shopName: user?.shopName || '',
       whatsappNumber: user?.whatsappNumber || '',
       location: user?.location || '',
+      address: user?.address || '',
+      city: user?.city || '',
+      latitude:
+        user?.latitude != null && Number.isFinite(Number(user.latitude)) ? String(user.latitude) : '',
+      longitude:
+        user?.longitude != null && Number.isFinite(Number(user.longitude)) ? String(user.longitude) : '',
       profileImage: user?.profileImage || '',
     });
   }, [user]);
@@ -39,21 +74,7 @@ const Dashboard: React.FC = () => {
         profileImage: profileImageDraft,
       });
       const updatedUser = response.data?.data;
-      setUser(
-        updatedUser
-          ? {
-              _id: updatedUser._id,
-              name: updatedUser.name,
-              email: updatedUser.email,
-              role: updatedUser.role === 'seller' ? 'seller' : 'buyer',
-              avatar: updatedUser.avatar,
-              shopName: updatedUser.shopName || '',
-              whatsappNumber: updatedUser.whatsappNumber || '',
-              location: updatedUser.location || '',
-              profileImage: updatedUser.profileImage || '',
-            }
-          : user
-      );
+      setUser(mapUpdatedUser(updatedUser));
       setProfileMessage('Profile photo updated successfully.');
     } catch (error) {
       setProfileMessage(getApiErrorMessage(error, 'Unable to update profile photo.'));
@@ -95,27 +116,81 @@ const Dashboard: React.FC = () => {
     try {
       const response = await apiClient.put('/api/auth/me', sellerProfile);
       const updatedUser = response.data?.data;
-      setUser(
-        updatedUser
-          ? {
-              _id: updatedUser._id,
-              name: updatedUser.name,
-              email: updatedUser.email,
-              role: updatedUser.role === 'seller' ? 'seller' : 'buyer',
-              avatar: updatedUser.avatar,
-              shopName: updatedUser.shopName || '',
-              whatsappNumber: updatedUser.whatsappNumber || '',
-              location: updatedUser.location || '',
-              profileImage: updatedUser.profileImage || '',
-            }
-          : user
-      );
+      setUser(mapUpdatedUser(updatedUser));
       setSaveMessage('Seller profile updated successfully.');
+      setSellerGeoError('');
+      setSellerGeoInfo('');
     } catch (error) {
       setSaveMessage(getApiErrorMessage(error, 'Unable to update seller profile.'));
     } finally {
       setSaving(false);
     }
+  };
+
+  const geolocationFailureMessage = (code: number) => {
+    switch (code) {
+      case 1:
+        return 'Location permission was denied. Allow access for this site or enter coordinates manually.';
+      case 2:
+        return 'Your position could not be determined. Try again or enter coordinates manually.';
+      case 3:
+        return 'Location request timed out. Try again or enter coordinates manually.';
+      default:
+        return 'Could not read your location. Try again or enter coordinates manually.';
+    }
+  };
+
+  const fillSellerLocationFromBrowser = () => {
+    setSellerGeoError('');
+    setSellerGeoInfo('');
+    if (!navigator.geolocation) {
+      setSellerGeoError('Geolocation is not supported in this browser. Enter latitude and longitude manually.');
+      return;
+    }
+    setSellerGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const latStr = String(Math.round(lat * 1e6) / 1e6);
+        const lngStr = String(Math.round(lng * 1e6) / 1e6);
+
+        let rev: Awaited<ReturnType<typeof reverseGeocodeSellerLocation>> = null;
+        const ctrl = new AbortController();
+        const timer = window.setTimeout(() => ctrl.abort(), 12_000);
+        try {
+          rev = await reverseGeocodeSellerLocation(lat, lng, ctrl.signal);
+        } catch {
+          rev = null;
+        } finally {
+          window.clearTimeout(timer);
+        }
+
+        setSellerProfile((prev) => {
+          const next = { ...prev, latitude: latStr, longitude: lngStr };
+          if (rev) {
+            if (rev.city) next.city = rev.city;
+            if (rev.location) next.location = rev.location;
+            if (rev.address) next.address = rev.address;
+          }
+          return next;
+        });
+
+        setSellerGeoLoading(false);
+        if (rev) {
+          setSellerGeoInfo('Location filled from your device and OpenStreetMap lookup.');
+        } else {
+          setSellerGeoInfo(
+            'Coordinates filled from your device. City or address could not be looked up — edit those fields if needed, then save.'
+          );
+        }
+      },
+      (geoErr) => {
+        setSellerGeoLoading(false);
+        setSellerGeoError(geolocationFailureMessage(geoErr.code));
+      },
+      { enableHighAccuracy: true, timeout: 22_000, maximumAge: 0 }
+    );
   };
 
   const handleProfileImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -330,7 +405,64 @@ const Dashboard: React.FC = () => {
               <input
                 value={sellerProfile.location}
                 onChange={(e) => setSellerProfile((prev) => ({ ...prev, location: e.target.value }))}
-                placeholder="Location"
+                placeholder="Location (area / region)"
+                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              />
+              <input
+                value={sellerProfile.city}
+                onChange={(e) => setSellerProfile((prev) => ({ ...prev, city: e.target.value }))}
+                placeholder="City"
+                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              />
+              <textarea
+                value={sellerProfile.address}
+                onChange={(e) => setSellerProfile((prev) => ({ ...prev, address: e.target.value }))}
+                placeholder="Street address (shown on nearby map cards)"
+                rows={2}
+                className="sm:col-span-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              />
+              <div className="sm:col-span-2 space-y-2 rounded-xl border border-zinc-200 bg-zinc-50/90 p-4 dark:border-zinc-700 dark:bg-zinc-900/40">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                    Map position
+                  </span>
+                  <button
+                    type="button"
+                    onClick={fillSellerLocationFromBrowser}
+                    disabled={sellerGeoLoading || saving || uploadingProfileImage}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-xs font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                  >
+                    {sellerGeoLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    ) : (
+                      <Navigation className="h-4 w-4" aria-hidden />
+                    )}
+                    {sellerGeoLoading ? 'Getting location…' : 'Use current location'}
+                  </button>
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Uses your browser location, then tries to fill city and address from OpenStreetMap. You can still edit
+                  every field before saving.
+                </p>
+                {sellerGeoError ? (
+                  <p className="text-sm text-rose-600 dark:text-rose-400">{sellerGeoError}</p>
+                ) : null}
+                {sellerGeoInfo ? (
+                  <p className="text-sm text-emerald-800 dark:text-emerald-300/90">{sellerGeoInfo}</p>
+                ) : null}
+              </div>
+              <input
+                value={sellerProfile.latitude}
+                onChange={(e) => setSellerProfile((prev) => ({ ...prev, latitude: e.target.value }))}
+                placeholder="Latitude (decimal, e.g. 26.9124)"
+                inputMode="decimal"
+                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              />
+              <input
+                value={sellerProfile.longitude}
+                onChange={(e) => setSellerProfile((prev) => ({ ...prev, longitude: e.target.value }))}
+                placeholder="Longitude (decimal, e.g. 75.7873)"
+                inputMode="decimal"
                 className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
               />
               <input

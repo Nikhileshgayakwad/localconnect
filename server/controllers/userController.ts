@@ -6,7 +6,7 @@ import FeedPost from '../models/FeedPost.js';
 export const getPublicUserProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.params.userId).select(
-      '_id name role location shopName whatsappNumber profileImage avatar createdAt'
+      '_id name role location address city latitude longitude shopName whatsappNumber profileImage avatar createdAt'
     );
 
     if (!user) {

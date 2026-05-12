@@ -15,6 +15,7 @@ import Community from './pages/Community';
 import Wishlist from './pages/Wishlist';
 import Cart from './pages/Cart';
 import Marketplace from './pages/Marketplace';
+import NearbySellers from './pages/NearbySellers';
 import UserProfile from './pages/UserProfile';
 
 export default function App() {
@@ -25,6 +26,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/nearby-sellers" element={<NearbySellers />} />
           <Route path="/community" element={<Community />} />
           <Route path="/products/:id" element={<ProductDetails />} />
           <Route path="/users/:userId" element={<UserProfile />} />

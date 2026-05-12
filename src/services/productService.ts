@@ -8,6 +8,8 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   limit?: number;
+  /** Filter by seller user id (Mongo ObjectId string) */
+  seller?: string;
 }
 
 export async function fetchProducts(filters: ProductFilters = {}): Promise<Product[]> {
@@ -23,6 +25,7 @@ export async function fetchProducts(filters: ProductFilters = {}): Promise<Produ
       location: filters.location || undefined,
       minPrice: filters.minPrice ?? undefined,
       maxPrice: filters.maxPrice ?? undefined,
+      seller: filters.seller?.trim() || undefined,
     },
   });
   return res.data?.data ?? [];

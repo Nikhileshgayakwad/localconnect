@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import Product from '../models/Product.js';
 import { AuthRequest } from '../middleware/authMiddleware.js';
@@ -11,9 +12,15 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       location = '',
       minPrice = '',
       maxPrice = '',
+      seller = '',
     } = req.query as Record<string, string>;
 
     const query: Record<string, any> = {};
+
+    const sellerId = typeof seller === 'string' ? seller.trim() : '';
+    if (sellerId && mongoose.Types.ObjectId.isValid(sellerId)) {
+      query.owner = new mongoose.Types.ObjectId(sellerId);
+    }
 
     if (search.trim()) {
       query.$or = [

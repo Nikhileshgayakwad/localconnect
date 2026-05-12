@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Heart, MapPin, Search, ShoppingCart, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Heart, MapPin, Search, ShoppingCart, Star, X } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { getApiErrorMessage } from '../lib/api';
 import { fetchProducts } from '../services/productService';
 import { Product } from '../types/marketplace';
 import { PRODUCT_CATEGORIES } from '../constants/categories';
 
 const Marketplace: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sellerIdFromUrl = (searchParams.get('seller') || '').trim();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,6 +31,7 @@ const Marketplace: React.FC = () => {
           location: location.trim() || undefined,
           minPrice: minPrice ? Number(minPrice) : undefined,
           maxPrice: maxPrice ? Number(maxPrice) : undefined,
+          seller: sellerIdFromUrl || undefined,
         });
         setProducts(data);
       } catch (err) {
@@ -38,7 +42,13 @@ const Marketplace: React.FC = () => {
     };
 
     loadProducts();
-  }, [search, selectedCategories, location, minPrice, maxPrice]);
+  }, [search, selectedCategories, location, minPrice, maxPrice, sellerIdFromUrl]);
+
+  const clearSellerFilter = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('seller');
+    setSearchParams(next);
+  };
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -52,6 +62,28 @@ const Marketplace: React.FC = () => {
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Marketplace</h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">Discover local products from verified sellers near you.</p>
       </div>
+
+      {sellerIdFromUrl ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-950 dark:border-indigo-500/40 dark:bg-indigo-500/15 dark:text-indigo-100">
+          <span>Showing products from one seller.</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to={`/users/${encodeURIComponent(sellerIdFromUrl)}`}
+              className="font-semibold underline decoration-indigo-400 underline-offset-2 hover:text-indigo-800 dark:hover:text-indigo-50"
+            >
+              Seller profile
+            </Link>
+            <button
+              type="button"
+              onClick={clearSellerFilter}
+              className="inline-flex items-center gap-1 rounded-lg border border-indigo-300 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-900 hover:bg-indigo-100 dark:border-indigo-400/50 dark:bg-zinc-900 dark:text-indigo-100 dark:hover:bg-zinc-800"
+            >
+              <X className="h-3.5 w-3.5" />
+              Clear filter
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
         <div className="space-y-4">

@@ -47,6 +47,10 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
           shopName: user.shopName,
           whatsappNumber: user.whatsappNumber,
           location: user.location,
+          address: user.address,
+          city: user.city,
+          latitude: user.latitude,
+          longitude: user.longitude,
           profileImage: user.profileImage,
         }
       });
@@ -93,6 +97,10 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         shopName: user.shopName,
         whatsappNumber: user.whatsappNumber,
         location: user.location,
+        address: user.address,
+        city: user.city,
+        latitude: user.latitude,
+        longitude: user.longitude,
         profileImage: user.profileImage,
       }
     });
@@ -126,12 +134,45 @@ export const updateMe = async (req: any, res: Response): Promise<void> => {
     }
 
     // Role cannot be updated from profile edit.
-    const allowedFields = ['name', 'shopName', 'whatsappNumber', 'location', 'profileImage'];
+    const allowedFields = [
+      'name',
+      'shopName',
+      'whatsappNumber',
+      'location',
+      'address',
+      'city',
+      'profileImage',
+    ];
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         (user as any)[field] = req.body[field];
       }
     });
+
+    if (req.body.latitude !== undefined) {
+      if (req.body.latitude === '' || req.body.latitude === null) {
+        (user as any).latitude = null;
+      } else {
+        const v = Number(req.body.latitude);
+        if (!Number.isFinite(v) || v < -90 || v > 90) {
+          res.status(400).json({ success: false, error: 'Latitude must be a number between -90 and 90' });
+          return;
+        }
+        (user as any).latitude = v;
+      }
+    }
+    if (req.body.longitude !== undefined) {
+      if (req.body.longitude === '' || req.body.longitude === null) {
+        (user as any).longitude = null;
+      } else {
+        const v = Number(req.body.longitude);
+        if (!Number.isFinite(v) || v < -180 || v > 180) {
+          res.status(400).json({ success: false, error: 'Longitude must be a number between -180 and 180' });
+          return;
+        }
+        (user as any).longitude = v;
+      }
+    }
 
     // Backward-compatibility: repair legacy invalid roles before save.
     if (user.role !== 'buyer' && user.role !== 'seller') {
