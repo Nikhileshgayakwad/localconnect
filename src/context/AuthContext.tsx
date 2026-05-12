@@ -26,7 +26,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -41,6 +41,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     profileImage: rawUser?.profileImage || rawUser?.avatar || '',
   });
 
+  const setUser = (userData: User | null) => {
+    setUserState(userData ? normalizeUser(userData) : null);
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       if (token) {
@@ -49,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           console.log('[Auth:Me] Fetching user from', `${API_BASE_URL}/api/auth/me`);
           const res = await apiClient.get('/api/auth/me');
-          setUser(normalizeUser(res.data.data));
+          setUserState(normalizeUser(res.data.data));
         } catch (error) {
           console.error('Failed to fetch user', error);
           logout();
@@ -64,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = (data: any) => {
     localStorage.setItem('token', data.token);
     setToken(data.token);
-    setUser(normalizeUser(data.user));
+    setUserState(normalizeUser(data.user));
     axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
   };
@@ -72,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
-    setUser(null);
+    setUserState(null);
     delete axios.defaults.headers.common['Authorization'];
     delete apiClient.defaults.headers.common['Authorization'];
   };

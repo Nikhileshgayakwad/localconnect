@@ -125,12 +125,18 @@ export const updateMe = async (req: any, res: Response): Promise<void> => {
       return;
     }
 
-    const allowedFields = ['name', 'avatar', 'shopName', 'whatsappNumber', 'location', 'profileImage'];
+    // Role cannot be updated from profile edit.
+    const allowedFields = ['name', 'shopName', 'whatsappNumber', 'location', 'profileImage'];
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         (user as any)[field] = req.body[field];
       }
     });
+
+    // Backward-compatibility: repair legacy invalid roles before save.
+    if (user.role !== 'buyer' && user.role !== 'seller') {
+      user.role = 'buyer';
+    }
 
     if (req.body.profileImage !== undefined) {
       user.avatar = req.body.profileImage || user.avatar;

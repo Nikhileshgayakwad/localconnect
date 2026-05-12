@@ -37,7 +37,6 @@ const Dashboard: React.FC = () => {
     try {
       const response = await apiClient.put('/api/auth/me', {
         profileImage: profileImageDraft,
-        avatar: profileImageDraft,
       });
       const updatedUser = response.data?.data;
       setUser(

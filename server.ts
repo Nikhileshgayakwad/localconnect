@@ -13,8 +13,10 @@ import uploadRoutes from './server/routes/uploadRoutes.js';
 import cartRoutes from './server/routes/cartRoutes.js';
 import wishlistRoutes from './server/routes/wishlistRoutes.js';
 import userRoutes from './server/routes/userRoutes.js';
+import { configureCloudinary } from './server/config/cloudinary.js';
 
 dotenv.config();
+configureCloudinary();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,8 +34,9 @@ async function startServer() {
   const PORT = Number(process.env.PORT) || 3000;
   const uploadsPath = path.join(__dirname, 'uploads');
 
-  if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
+  // Legacy local /uploads only if the folder exists (new uploads use Cloudinary).
+  if (fs.existsSync(uploadsPath)) {
+    app.use('/uploads', express.static(uploadsPath));
   }
 
   // Connect to database if MONGO_URI is set
@@ -47,7 +50,6 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use('/uploads', express.static(uploadsPath));
 
   // API Routes
   app.use('/api/auth', authRoutes);

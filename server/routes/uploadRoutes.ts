@@ -1,24 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
-import path from 'path';
 import { protect } from '../middleware/authMiddleware.js';
 import { uploadImage } from '../controllers/uploadController.js';
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, path.resolve('uploads'));
-  },
-  filename: (_req, file, cb) => {
-    const extension = path.extname(file.originalname || '').toLowerCase();
-    const baseName = path
-      .basename(file.originalname || 'image', extension)
-      .replace(/[^a-zA-Z0-9-_]/g, '')
-      .slice(0, 40);
-    cb(null, `${Date.now()}-${baseName || 'image'}${extension || '.jpg'}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter: multer.Options['fileFilter'] = (_req, file, cb) => {
   if (!file.mimetype.startsWith('image/')) {
