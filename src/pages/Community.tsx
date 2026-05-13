@@ -14,6 +14,7 @@ import { getApiErrorMessage } from '../lib/api';
 import { FeedPost } from '../types/marketplace';
 import { PRODUCT_CATEGORIES } from '../constants/categories';
 import { Link } from 'react-router-dom';
+import ProfileAvatar from '../components/ProfileAvatar';
 
 const Community: React.FC = () => {
   const { user } = useAuth();
@@ -180,6 +181,18 @@ const Community: React.FC = () => {
           onSubmit={submitPost}
           className="mb-6 space-y-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 sm:p-5"
         >
+          <div className="flex items-center gap-3 border-b border-zinc-100 pb-3 dark:border-zinc-800">
+            <ProfileAvatar
+              profileImage={user.profileImage}
+              avatar={user.avatar}
+              alt={user.name}
+              className="h-11 w-11 flex-shrink-0 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-600"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Posting as {user.name}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{user.role}</p>
+            </div>
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <select
               value={form.postType}
@@ -317,11 +330,10 @@ const Community: React.FC = () => {
                 <div className="flex items-start justify-between gap-3">
                   {post.userId ? (
                     <Link to={`/users/${post.userId}`} className="flex items-center gap-3">
-                      <img
-                        src={post.authorAvatar}
+                      <ProfileAvatar
+                        profileImage={post.authorAvatar}
                         alt={post.authorName}
-                        className="h-10 w-10 rounded-full object-cover"
-                        loading="lazy"
+                        className="h-10 w-10 flex-shrink-0 rounded-full object-cover"
                       />
                       <div>
                         <p className="text-sm font-semibold text-zinc-900 hover:text-indigo-600 dark:text-zinc-100 dark:hover:text-indigo-300">
@@ -334,11 +346,10 @@ const Community: React.FC = () => {
                     </Link>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <img
-                        src={post.authorAvatar}
+                      <ProfileAvatar
+                        profileImage={post.authorAvatar}
                         alt={post.authorName}
-                        className="h-10 w-10 rounded-full object-cover"
-                        loading="lazy"
+                        className="h-10 w-10 flex-shrink-0 rounded-full object-cover"
                       />
                       <div>
                         <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{post.authorName}</p>
@@ -404,7 +415,12 @@ const Community: React.FC = () => {
                 {post.commentItems && post.commentItems.length > 0 ? (
                   <div className="mt-3 space-y-2 rounded-xl bg-zinc-50 p-3 dark:bg-zinc-800/40">
                     {post.commentItems.map((comment) => (
-                      <div key={comment._id} className="flex items-start gap-2">
+                      <div key={comment._id} className="flex items-start gap-3">
+                        <ProfileAvatar
+                          profileImage={comment.userAvatar}
+                          alt={comment.userName}
+                          className="mt-0.5 h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                        />
                         <div className="min-w-0">
                           <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">{comment.userName}</p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -422,6 +438,12 @@ const Community: React.FC = () => {
                 {user ? (
                   <div className="mt-3 space-y-2">
                     <div className="flex gap-2">
+                      <ProfileAvatar
+                        profileImage={user.profileImage}
+                        avatar={user.avatar}
+                        alt={user.name}
+                        className="mt-1 h-8 w-8 flex-shrink-0 rounded-full object-cover sm:h-9 sm:w-9"
+                      />
                       <input
                         value={commentDrafts[post._id] || ''}
                         onChange={(e) => setCommentDrafts((prev) => ({ ...prev, [post._id]: e.target.value }))}

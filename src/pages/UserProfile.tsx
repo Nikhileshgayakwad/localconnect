@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { MapPin, MessageCircle, Phone } from 'lucide-react';
 import { fetchPublicUserProfile, PublicUserProfile } from '../services/userService';
 import { getApiErrorMessage } from '../lib/api';
+import ProfileAvatar from '../components/ProfileAvatar';
 
 const UserProfile: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -52,10 +53,11 @@ const UserProfile: React.FC = () => {
     <section className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
         <div className="flex items-center gap-4">
-          <img
-            src={user.profileImage || user.avatar || ''}
+          <ProfileAvatar
+            profileImage={user.profileImage}
+            avatar={user.avatar}
             alt={user.name}
-            className="h-16 w-16 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
+            className="h-16 w-16 flex-shrink-0 rounded-full border border-zinc-200 object-cover dark:border-zinc-700 sm:h-20 sm:w-20"
           />
           <div>
             <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{user.name}</h1>

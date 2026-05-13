@@ -8,6 +8,8 @@ import { fetchSellerProfile } from '../services/sellerService';
 import { useAuth } from '../context/AuthContext';
 import { addToCart } from '../services/cartService';
 import { addToWishlist } from '../services/wishlistService';
+import { buildProductPageUrl, buildWaMeUrl, sanitizeWhatsAppDigits } from '../lib/whatsapp';
+import ProfileAvatar from '../components/ProfileAvatar';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -66,7 +68,8 @@ const ProductDetails: React.FC = () => {
     loadProduct();
   }, [id]);
 
-  const whatsappNumber = (seller?.whatsappNumber || '').replace(/[+\s-]/g, '').replace(/[^\d]/g, '');
+  const whatsappDigits = sanitizeWhatsAppDigits(seller?.whatsappNumber || '');
+  const productPageUrl = product ? buildProductPageUrl(product._id) : '';
   const whatsappMessage = product
     ? [
         'Hello!',
@@ -75,14 +78,11 @@ const ProductDetails: React.FC = () => {
         `Category: ${product.category}`,
         `Location: ${product.location}`,
         `Seller/Shop: ${seller?.shopName || seller?.name || product.sellerName}`,
-        `Product Link: ${window.location.href}`,
+        `Product Link: ${productPageUrl}`,
         'Is this product available?',
       ].join('\n')
     : '';
-  const whatsappUrl =
-    whatsappNumber && whatsappMessage
-      ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`
-      : '';
+  const whatsappUrl = buildWaMeUrl(whatsappDigits, whatsappMessage) || '';
   const isOwner = Boolean(user && product?.owner?._id && user._id === product.owner._id);
 
   const handleAddToCart = async () => {
@@ -179,10 +179,11 @@ const ProductDetails: React.FC = () => {
             {seller ? (
               <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/40">
                 <div className="flex items-center gap-3">
-                  <img
-                    src={seller.profileImage || seller.avatar}
+                  <ProfileAvatar
+                    profileImage={seller.profileImage}
+                    avatar={seller.avatar}
                     alt={seller.shopName || seller.name}
-                    className="h-12 w-12 rounded-full object-cover"
+                    className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
                   />
                   <div>
                     <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{seller.shopName || seller.name}</p>

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import FeedPost from '../models/FeedPost.js';
 import { AuthRequest } from '../middleware/authMiddleware.js';
 import Product from '../models/Product.js';
+import { DEFAULT_PROFILE_AVATAR } from '../constants/avatar.js';
 
 export const getFeedPosts = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -10,8 +11,10 @@ export const getFeedPosts = async (req: Request, res: Response): Promise<void> =
     const normalized = feedPosts.map((post: any) => {
       const likedBy = Array.isArray(post.likedBy) ? post.likedBy : [];
       const commentItems = Array.isArray(post.commentItems) ? post.commentItems : [];
+      const rawAuthor = (post.authorAvatar || '').trim();
       return {
         ...post.toObject(),
+        authorAvatar: rawAuthor || DEFAULT_PROFILE_AVATAR,
         likes: likedBy.length,
         comments: commentItems.length,
       };
@@ -62,7 +65,10 @@ export const createFeedPost = async (req: AuthRequest, res: Response): Promise<v
       location,
       image,
       authorName: req.user.name,
-      authorAvatar: req.user.profileImage || req.user.avatar,
+      authorAvatar:
+        (req.user.profileImage || '').trim() ||
+        (req.user.avatar || '').trim() ||
+        DEFAULT_PROFILE_AVATAR,
       likes: 0,
       comments: 0,
       tags: [],
@@ -119,6 +125,10 @@ export const addFeedComment = async (req: AuthRequest, res: Response): Promise<v
       userId: req.user._id,
       userName: req.user.name,
       text,
+      userAvatar:
+        (req.user.profileImage || '').trim() ||
+        (req.user.avatar || '').trim() ||
+        DEFAULT_PROFILE_AVATAR,
     } as any);
 
     post.comments = post.commentItems.length;

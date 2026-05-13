@@ -5,6 +5,7 @@ import { getApiErrorMessage } from '../lib/api';
 import { fetchProducts } from '../services/productService';
 import { Product } from '../types/marketplace';
 import { PRODUCT_CATEGORIES } from '../constants/categories';
+import ProfileAvatar from '../components/ProfileAvatar';
 
 const Marketplace: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -190,7 +191,19 @@ const Marketplace: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Rs {product.price.toLocaleString()}</p>
-                <p className="text-xs text-zinc-600 dark:text-zinc-300">Seller: {product.sellerName}</p>
+                <p className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
+                  {product.owner ? (
+                    <ProfileAvatar
+                      profileImage={product.owner.profileImage}
+                      avatar={product.owner.avatar}
+                      alt={product.sellerName}
+                      className="h-8 w-8 flex-shrink-0 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-600"
+                    />
+                  ) : null}
+                  <span className="min-w-0 truncate">
+                    <span className="font-medium text-zinc-500 dark:text-zinc-400">Seller:</span> {product.sellerName}
+                  </span>
+                </p>
                 <p className="inline-flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
                   <MapPin size={12} /> {product.location}
                 </p>

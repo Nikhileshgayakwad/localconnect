@@ -1,6 +1,7 @@
 import { BadgeCheck, MapPin, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Seller } from '../../types/marketplace';
+import ProfileAvatar from '../ProfileAvatar';
 
 interface SellerCardProps {
   seller: Seller;
@@ -14,7 +15,12 @@ export default function SellerCard({ seller }: SellerCardProps) {
       className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
     >
       <div className="flex items-center gap-3">
-        <img src={seller.avatar} alt={seller.name} className="h-12 w-12 rounded-full object-cover" loading="lazy" />
+        <ProfileAvatar
+          profileImage={seller.profileImage}
+          avatar={seller.avatar}
+          alt={seller.name}
+          className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
+        />
         <div className="min-w-0 flex-1">
           <p className="line-clamp-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{seller.name}</p>
           <p className="inline-flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">

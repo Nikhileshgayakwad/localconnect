@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-hidden="true">
+  <defs>
+    <linearGradient id="localconnect-avatar-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="64" fill="url(#localconnect-avatar-bg)"/>
+  <circle cx="64" cy="52" r="22" fill="#f8fafc"/>
+  <ellipse cx="64" cy="108" rx="40" ry="28" fill="#f8fafc"/>
+</svg>

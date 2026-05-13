@@ -1,5 +1,6 @@
 import { Heart, MessageCircle } from 'lucide-react';
 import { FeedPost } from '../../types/marketplace';
+import ProfileAvatar from '../ProfileAvatar';
 
 interface FeedPreviewCardProps {
   post: FeedPost;
@@ -9,7 +10,11 @@ export default function FeedPreviewCard({ post }: FeedPreviewCardProps) {
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
       <div className="flex items-center gap-3">
-        <img src={post.authorAvatar} alt={post.authorName} className="h-10 w-10 rounded-full object-cover" loading="lazy" />
+        <ProfileAvatar
+          profileImage={post.authorAvatar}
+          alt={post.authorName}
+          className="h-10 w-10 rounded-full object-cover"
+        />
         <div>
           <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{post.authorName}</p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">

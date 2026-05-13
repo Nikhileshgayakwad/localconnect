@@ -56,7 +56,10 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       if (!Number.isNaN(parsedMax)) query.price.$lte = parsedMax;
     }
 
-    const products = await Product.find(query).sort({ createdAt: -1 }).limit(Math.min(limit, 50));
+    const products = await Product.find(query)
+      .populate('owner', 'name shopName profileImage avatar')
+      .sort({ createdAt: -1 })
+      .limit(Math.min(limit, 50));
 
     res.status(200).json({
       success: true,

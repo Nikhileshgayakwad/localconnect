@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, User, Menu, X, Moon, Sun, Store, MapPin } from 'lucide-react';
+import { LogOut, Menu, X, Moon, Sun, Store, MapPin } from 'lucide-react';
+import ProfileAvatar from './ProfileAvatar';
 import { useTheme } from '../context/ThemeContext';
 
 const Navbar: React.FC = () => {
@@ -78,17 +79,12 @@ const Navbar: React.FC = () => {
                 )}
                 <div className="relative ml-3 flex items-center gap-3 border-l border-zinc-200 pl-3 dark:border-zinc-700">
                   <div className="flex items-center gap-2">
-                    {user.profileImage || user.avatar ? (
-                      <img
-                        src={user.profileImage || user.avatar}
-                        alt={user.name}
-                        className="h-8 w-8 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
-                      />
-                    ) : (
-                      <div className="rounded-full bg-indigo-100 p-1 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">
-                        <User size={20} />
-                      </div>
-                    )}
+                    <ProfileAvatar
+                      profileImage={user.profileImage}
+                      avatar={user.avatar}
+                      alt={user.name}
+                      className="h-8 w-8 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
+                    />
                     <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">{user.name}</span>
                   </div>
                   <button
@@ -145,17 +141,12 @@ const Navbar: React.FC = () => {
             {user ? (
               <>
                 <div className="flex items-center space-x-3 border-b border-zinc-200 px-1 py-3 dark:border-zinc-800">
-                  {user.profileImage || user.avatar ? (
-                    <img
-                      src={user.profileImage || user.avatar}
-                      alt={user.name}
-                      className="h-10 w-10 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
-                    />
-                  ) : (
-                    <div className="rounded-full bg-indigo-100 p-2 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">
-                      <User size={24} />
-                    </div>
-                  )}
+                  <ProfileAvatar
+                    profileImage={user.profileImage}
+                    avatar={user.avatar}
+                    alt={user.name}
+                    className="h-10 w-10 flex-shrink-0 rounded-full border border-zinc-200 object-cover dark:border-zinc-700"
+                  />
                   <div>
                     <div className="text-base font-medium text-zinc-800 dark:text-zinc-100">{user.name}</div>
                     <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{user.email}</div>

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { DEFAULT_PROFILE_AVATAR } from '../constants/avatar.js';
 
 const commentSchema = new mongoose.Schema(
   {
@@ -18,6 +19,11 @@ const commentSchema = new mongoose.Schema(
       required: true,
       trim: true,
       maxlength: 500,
+    },
+    userAvatar: {
+      type: String,
+      default: '',
+      maxlength: 2048,
     },
   },
   {
@@ -59,7 +65,7 @@ const feedPostSchema = new mongoose.Schema(
     },
     authorAvatar: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=600&q=80',
+      default: DEFAULT_PROFILE_AVATAR,
     },
     content: {
       type: String,

@@ -4,6 +4,7 @@ import { ShoppingBag, Users, Calendar, Activity, CheckCircle2, Navigation, Loade
 import { apiClient, getApiErrorMessage } from '../lib/api';
 import { reverseGeocodeSellerLocation } from '../lib/osmReverseGeocode';
 import { uploadImageFile } from '../services/uploadService';
+import ProfileAvatar from '../components/ProfileAvatar';
 
 const Dashboard: React.FC = () => {
   const { user, setUser } = useAuth();
@@ -225,11 +226,14 @@ const Dashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8 dark:border-zinc-700 dark:bg-zinc-900">
           <div className="flex items-center space-x-4">
-            <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-2xl">
-              {user?.name.charAt(0).toUpperCase()}
-            </div>
+            <ProfileAvatar
+              profileImage={user?.profileImage}
+              avatar={user?.avatar}
+              alt={user?.name || 'Profile'}
+              className="h-16 w-16 flex-shrink-0 rounded-full border border-gray-200 object-cover dark:border-zinc-600 sm:h-20 sm:w-20"
+            />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.name}!</h1>
               <p className="text-gray-500">Manage your local e-commerce activity from here.</p>
@@ -349,15 +353,12 @@ const Dashboard: React.FC = () => {
         <div className="mt-8 bg-white shadow-sm border border-gray-200 rounded-lg p-6 dark:border-zinc-700 dark:bg-zinc-900">
           <h2 className="text-lg font-medium text-gray-900 mb-4 dark:text-zinc-100">Profile Photo</h2>
           <form onSubmit={saveProfilePhoto} className="space-y-3">
-            {profileImageDraft ? (
-              <img
-                src={profileImageDraft}
-                alt="Profile preview"
-                className="h-28 w-28 rounded-full border border-gray-200 object-cover dark:border-zinc-700"
-              />
-            ) : (
-              <div className="h-28 w-28 rounded-full border border-gray-200 bg-gray-100 dark:border-zinc-700 dark:bg-zinc-800" />
-            )}
+            <ProfileAvatar
+              profileImage={profileImageDraft.trim() || user?.profileImage}
+              avatar={profileImageDraft.trim() ? undefined : user?.avatar}
+              alt="Profile preview"
+              className="h-28 w-28 rounded-full border border-gray-200 object-cover dark:border-zinc-700"
+            />
             <div className="space-y-2">
               <label className="block text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Change Profile Photo</label>
               <input
@@ -483,13 +484,15 @@ const Dashboard: React.FC = () => {
                 />
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">Only image files up to 5MB are allowed.</p>
               </div>
-              {sellerProfile.profileImage ? (
-                <img
-                  src={sellerProfile.profileImage}
+              <div className="sm:col-span-2">
+                <p className="mb-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">Shop photo preview</p>
+                <ProfileAvatar
+                  profileImage={sellerProfile.profileImage}
+                  avatar={user?.avatar}
                   alt="Seller profile preview"
-                  className="sm:col-span-2 h-40 w-full rounded-lg border border-zinc-200 object-cover dark:border-zinc-700"
+                  className="mx-auto h-40 w-40 rounded-2xl border border-zinc-200 object-cover dark:border-zinc-700 sm:mx-0 sm:h-44 sm:w-44"
                 />
-              ) : null}
+              </div>
               <div className="sm:col-span-2 flex items-center gap-3">
                 <button
                   type="submit"

@@ -56,6 +56,8 @@ export interface FeedComment {
   userName: string;
   text: string;
   createdAt: string;
+  /** Present on comments created after avatar support; older comments omit this. */
+  userAvatar?: string;
 }
 
 export interface FeedPost {

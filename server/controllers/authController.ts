@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import FeedPost from '../models/FeedPost.js';
+import { DEFAULT_PROFILE_AVATAR } from '../constants/avatar.js';
 
 // Generate JWT
 const generateToken = (id: string) => {
@@ -134,20 +135,18 @@ export const updateMe = async (req: any, res: Response): Promise<void> => {
     }
 
     // Role cannot be updated from profile edit.
-    const allowedFields = [
-      'name',
-      'shopName',
-      'whatsappNumber',
-      'location',
-      'address',
-      'city',
-      'profileImage',
-    ];
+    const allowedFields = ['name', 'shopName', 'whatsappNumber', 'location', 'address', 'city'];
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         (user as any)[field] = req.body[field];
       }
     });
+
+    if (req.body.profileImage !== undefined) {
+      const trimmed = typeof req.body.profileImage === 'string' ? req.body.profileImage.trim() : '';
+      user.profileImage = trimmed;
+      user.avatar = trimmed || DEFAULT_PROFILE_AVATAR;
+    }
 
     if (req.body.latitude !== undefined) {
       if (req.body.latitude === '' || req.body.latitude === null) {
@@ -179,13 +178,9 @@ export const updateMe = async (req: any, res: Response): Promise<void> => {
       user.role = 'buyer';
     }
 
-    if (req.body.profileImage !== undefined) {
-      user.avatar = req.body.profileImage || user.avatar;
-    }
-
     await user.save();
 
-    const nextAvatar = user.profileImage || user.avatar;
+    const nextAvatar = (user.profileImage || '').trim() || user.avatar || DEFAULT_PROFILE_AVATAR;
     await FeedPost.updateMany(
       { userId: user._id },
       {

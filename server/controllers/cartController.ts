@@ -3,6 +3,15 @@ import mongoose from 'mongoose';
 import Cart from '../models/Cart.js';
 import { AuthRequest } from '../middleware/authMiddleware.js';
 
+/** Nested populate so cart lines include seller WhatsApp on product.owner. */
+const cartProductPopulate = {
+  path: 'product' as const,
+  populate: {
+    path: 'owner' as const,
+    select: 'name shopName whatsappNumber location profileImage avatar',
+  },
+};
+
 export const getCart = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user?._id) {
@@ -10,7 +19,7 @@ export const getCart = async (req: AuthRequest, res: Response): Promise<void> =>
       return;
     }
 
-    const items = await Cart.find({ user: req.user._id }).populate('product');
+    const items = await Cart.find({ user: req.user._id }).populate(cartProductPopulate);
 
     res.status(200).json({
       success: true,
@@ -38,7 +47,7 @@ export const addToCart = async (req: AuthRequest, res: Response): Promise<void> 
     if (existing) {
       existing.quantity += 1;
       await existing.save();
-      await existing.populate('product');
+      await existing.populate(cartProductPopulate);
       res.status(200).json({ success: true, data: existing });
       return;
     }
@@ -48,7 +57,7 @@ export const addToCart = async (req: AuthRequest, res: Response): Promise<void> 
       product: productId,
       quantity: 1,
     });
-    await created.populate('product');
+    await created.populate(cartProductPopulate);
 
     res.status(201).json({ success: true, data: created });
   } catch (error: any) {

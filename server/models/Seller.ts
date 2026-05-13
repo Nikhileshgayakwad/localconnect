@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { DEFAULT_PROFILE_AVATAR } from '../constants/avatar.js';
 
 const sellerSchema = new mongoose.Schema(
   {
@@ -24,11 +25,11 @@ const sellerSchema = new mongoose.Schema(
     },
     profileImage: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80',
+      default: '',
     },
     avatar: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80',
+      default: DEFAULT_PROFILE_AVATAR,
     },
     location: {
       type: String,

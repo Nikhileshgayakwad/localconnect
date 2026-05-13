@@ -2,6 +2,7 @@ import { Heart, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Product } from '../../types/marketplace';
 import { Link } from 'react-router-dom';
+import ProfileAvatar from '../ProfileAvatar';
 
 interface ProductCardProps {
   product: Product;
@@ -33,9 +34,19 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Heart size={13} /> {product.likes}
           </span>
         </div>
-        <div className="flex items-end justify-between">
+        <div className="flex items-center justify-between gap-2">
           <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Rs {product.price.toLocaleString()}</span>
-          <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{product.sellerName}</span>
+          <span className="flex min-w-0 items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            {product.owner ? (
+              <ProfileAvatar
+                profileImage={product.owner.profileImage}
+                avatar={product.owner.avatar}
+                alt={product.sellerName}
+                className="h-7 w-7 flex-shrink-0 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-zinc-600"
+              />
+            ) : null}
+            <span className="truncate">{product.sellerName}</span>
+          </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-xs text-zinc-500 dark:text-zinc-400">Stock: {product.stock}</span>

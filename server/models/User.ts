@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { DEFAULT_PROFILE_AVATAR } from '../constants/avatar.js';
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -24,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    default: 'default-avatar.png'
+    default: DEFAULT_PROFILE_AVATAR,
   },
   shopName: {
     type: String,
